@@ -1,0 +1,13 @@
+Bir pod'un tekrar çevrimiçi olması için beklenilen süre controller tarafında bulunur.
+    kube-controller-manager --pod-eviction-timeout=5m0s
+    Yani bir node'un çevrimdışı olduğunun master node tarafından işaretlenebilmesi için master node 5 dakika bekler.
+Node tekrar geri geldiğinde, üzerinde herhangi bir pod olmadan ready duruma geçecektir.
+
+Bir node'un üzerinde yapılacak güncellemenin 5 dakikadan daha kısa süreceğini biliyorsanız, hızlıca yapabilirsiniz.
+    Buna net bir şekilde emin olamayacağınız için node üzerindeki pod'ları "kubectl drain <node-name>" komutu ile diğer node'ların üzerinde dağıtabilirsiniz.
+    Bunu yaptığınız taktirde pod'lar yine taşınmaz sonlandırılır ama diğer node'ların üzerinde tekrar oluşturulur.
+    Node durumu cordon'lanır ve unschedule olarak işaretlenir.
+    Daha sonra node pod'ları çalıştırabilir hale getirmek için node'a "kubectl uncordon <node-name>" komutunu vermeniz gerekir.
+
+Başka bir komut olarak cordon node'u planlanamayan (unschedulable) hale getirir. Drain'in aksine mevcut node'da podları sonlandırmaz ve taşımaz.
+Sadece o node'da yeni pod'lar schedule edilmediğinden emin olur.
