@@ -1,0 +1,15 @@
+Bütün bileşenler kube-apiserver'a bağımlı olduğu için ondan büyük bir versiyon'a sahip olamaz.
+    Controller-Manager ve kube-shceduler ondan bir alt sürüme sahip olabilir.
+        kubelet ve kube-proxy eksi iki seviyesinde olabilir.
+
+Yükseltme için latest versiyondan önceki 2 versiyon kadar destekleme yapılır.
+v1.13 Supported (Stable)
+v1.12 Supported
+v1.12 Supported
+v1.11 Unsupported
+
+Yüksetlmeler bulunan versiyonlardan "CX+1 to SX" olacak şekilde yapılmalıdır.
+
+İlk olarak Master Node'lar sonrasında Worker node'lar olacak şekilde güncelleme yapılmalıdır.
+
+

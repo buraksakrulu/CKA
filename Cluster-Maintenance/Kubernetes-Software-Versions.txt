@@ -1,0 +1,76 @@
+v1.11.3 >> Major.Minor.Patch
+
+Alpha >> Tüm hata düzeltmeleri ve iyileştirmeler önce Alfa olan bir sürüme gider.
+Beta  >> Kodun iyi bir şekilde test edildiği ve yeni özelliklerin varsayılan olarak etkinleştirildiği beta sürümü olur.
+Main Stable Release >> önceki aşamalardan geçen sürümlerden çıkan stable sürümdür.
+
+Stable içinde: Kube-apisever | Controller-manager | kube-scheduler | kubelet |kube-proxy | kubectl >> aynı versiyondadır.
+    ETCD Cluster ve CoreDNS ayrı projeler oldukları için kendi sürümlerine sahiptir.
+
+Kubeadm ile:
+
+Command: Kubeadm upgrade plan
+
+NOT: Kubeadm Kubelet versilerini yüklemez veya yükseltemez.
+NOT: Kubeadm tool'u kubernetes ile aynı versiyonu takip eder
+
+Önce Kubeadm aracını yükseltin:
+Masters:
+    Command: apt-get upgrade -y kubeadm=1.12.0-00
+    Command: kubeadm upgrade apply v1.12.0
+        Gerekli imajları çeker ve küme bileşenlerini yükseltir.
+        Eğer kubectl get nodes komutunu çalıştırırsanız master node'u eski versiyonda göreceksiniz.
+            Bunun nedeni bu komutun çıktısında API sunucusunun kendisinin sürümünü değil, API sunucusuna kayıtlı düğümlerin her birindeki kubelets sürümlerinin bilgisini çekmesidir.
+        Bu sebeple sıradaki adım kubelet verislerini yükseltmektir.
+        NOT: unutmayın nodeların kurulumuna bağlı olarak master larda kubelet çalışıyor olabilir ya olmayabilir.
+        Kubeadm ile kurulmuş olan kümenin master node'unda master node'larda da pod çalıştırmak için kullanılan kubeletler vardır.
+Command: apt-get upgrade -y kubelet=1.12.0-00
+    Güncelleme yapıldıktan sonra kubelet servisini yeniden başlatmak gerekecektir.
+    Command: systemctl restart kubelet
+Nodes:
+    Command: kubectl drain <node-name> | node'da olan podları farklı nodlara alır ve node'u unschedulable olarak işaretler.
+    Command: apt-get upgrade -y kubeadm=1.12.0-00
+    Command: apt-get upgrade -y kubelet=1.12.0-00
+    Command: kubeadm upgrade node config --kubelet-version v1.12.0 | Yeni kubelet sürümü için node yapılandırmasını günceller.
+    Command: systemctl restart kubelet
+    Command: kubectl uncordon <node-name> | node'ı schedulable olarak işaretleriz.
+
+
+-----
+
+Solution:
+
+
+To seamlessly transition from Kubernetes v1.30 to v1.31 and gain access to the packages specific to the desired Kubernetes minor version, follow these essential steps during the upgrade process. This ensures that your environment is appropriately configured and aligned with the features and improvements introduced in Kubernetes v1.31.
+
+On the controlplane node:
+
+Use any text editor you prefer to open the file that defines the Kubernetes apt repository.
+
+* vim /etc/apt/sources.list.d/kubernetes.list
+Update the version in the URL to the next available minor release, i.e v1.31.
+
+* deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /
+After making changes, save the file and exit from your text editor. Proceed with the next instruction.
+
+* apt update
+
+* apt-cache madison kubeadm
+Based on the version information displayed by apt-cache madison, it indicates that for Kubernetes version 1.31.0, the available package version is 1.31.0-1.1. Therefore, to install kubeadm for Kubernetes v1.31.0, use the following command:
+
+* apt-get install kubeadm=1.31.0-1.1
+Run the following command to upgrade the Kubernetes cluster.
+
+* kubeadm upgrade plan v1.31.0
+
+* kubeadm upgrade apply v1.31.0
+Note that the above steps can take a few minutes to complete.
+
+Now, upgrade the Kubelet version. Also, mark the node (in this case, the "controlplane" node) as schedulable.
+
+* apt-get install kubelet=1.31.0-1.1
+Run the following commands to refresh the systemd configuration and apply changes to the Kubelet service:
+
+* systemctl daemon-reload
+
+* systemctl restart kubelet
