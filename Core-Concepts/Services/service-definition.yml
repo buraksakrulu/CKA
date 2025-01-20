@@ -28,3 +28,5 @@ spec:
   selector:
     app: myapp
     type: back-end
+
+# Target port tanımlamazsak bunun port ile aynı olduğunu varsayılır.
