@@ -1,0 +1,13 @@
+ReplicaSet ile Deployment aynı
+
+ApiVersion: apps/v1
+
+3 tane değer var
+- template:
+    spec:
+- replicas:
+- selector:
+    matchLabels:
+      - key: value
+
+spec altında tanımlanan pod labellarının selector'de de olması çok önemli. 
